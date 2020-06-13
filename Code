@@ -17,6 +17,11 @@ setInterval(() => {
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+//A simple hello command
+var Hello = function(message){
+message.channel.send("Hello <@" + message.author.id + "> How are you?")
+}
+
 // Our coin flip command.
 var coinFlipCommand = function(message){
   var coinflip = Math.floor(Math.random()*2); // Outputs a value that's either 0 or 1.
@@ -34,6 +39,10 @@ client.on('message', message => {
   if(commandMessage.startsWith("?")){ // Does the message start with the prefix?
     commandMessage = commandMessage.slice(1); // Take out the prefix
     console.log(commandMessage); // Output the current message into the logs
+    
+    if(commandMessage.startswith("hello")){
+    Hello(message);
+   }
     
     if(commandMessage.startsWith("flip")){ // Does the command given equal this one?
       coinFlipCommand(message); // Do the function above.
