@@ -1,0 +1,89 @@
+const http = require('http');
+const express = require('express');
+const app = express();
+var server = require('http').createServer(app);
+app.get("/", (request, response) => {
+  console.log(Date.now() + " Ping Received");
+  response.sendStatus(200);
+});
+const listener = server.listen(process.env.PORT, function() {
+  console.log('Your app is listening on port ' + listener.address().port);
+});
+setInterval(() => {
+  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+}, 280000);
+
+// Get the Discord librarys and create a client
+const Discord = require('discord.js');
+const client = new Discord.Client();
+
+client.on('message', message => {
+  // If the message is "what is my avatar"
+  if (message.content === ';avatar') {
+    // Send the user's avatar URL
+    message.reply(message.author.displayAvatarURL());
+  }
+});
+
+
+client.on('message', async message => {
+  // Voice only works in guilds, if the message does not come from a guild,
+  // we ignore it
+  if (!message.guild) return;
+
+  if (message.content === ';join') {
+    // Only try to join the sender's voice channel if they are in one themselves
+    if (message.member.voice.channel) {
+      const connection = await message.member.voice.channel.join();
+    } else {
+      message.reply('You need to join a voice channel first!');
+    }
+  }
+});
+
+var Help = function (message){
+  message.channel.send("<@" + message.author.id + "> The commands for this server are, **;hello**, **;flip** and **;help**")
+}
+
+//A simple hello command
+var Hello = function(message){
+  message.channel.send("Hello <@" + message.author.id + "> How are you?")
+}
+
+// Our coin flip command.
+var coinFlipCommand = function(message){
+  var coinflip = Math.floor(Math.random()*2); // Outputs a value that's either 0 or 1.
+  if(coinflip === 1){ // Check if the output was 1.
+    message.channel.send("Your coin just landed, on **TAILS!**"); // Send the message to the channel the command was posted in
+  }
+  else{ // Otherwise
+    message.channel.send("Your coin just landed, on **HEADS!**"); // Send this message to the channel the command was posted in
+  }
+};
+
+// Message function
+client.on('message', message => {
+  var commandMessage = message.toString(); // Converts the message into a string (as the message is an object techincally)
+  if(commandMessage.startsWith(";")){ // Does the message start with the prefix?
+    commandMessage = commandMessage.slice(1); // Take out the prefix
+    console.log(commandMessage); // Output the current message into the logs
+    
+    if(commandMessage.startsWith("help")){
+      Help(message);
+    }
+      
+    if(commandMessage.startsWith("hello")){
+      Hello(message);
+    }
+    
+    if(commandMessage.startsWith("flip")){ // Does the command given equal this one?
+      coinFlipCommand(message); // Do the function above.
+    }
+  }
+});
+
+// Ready function
+client.on('ready', () => { 
+  console.log("Bot was logged in"); // Output a message to the logs.
+});
+client.login(process.env.TOKEN);
